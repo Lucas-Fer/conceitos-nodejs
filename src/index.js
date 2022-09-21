@@ -20,6 +20,18 @@ function checksExistsUserAccount(request, response, next) {
   next();
 }
 
+function findUser(request, response, next) {
+  const { username } = request.headers;
+
+  if (!username) return response.status(404).send({ error: 'Header required!' });
+  const findUser = users.find(user => user.username === username);
+
+  if (!findUser) return response.status(400).json({ error: 'Username not found' });
+
+  request.user = findUser;
+  next();
+}
+
 app.post('/users', checksExistsUserAccount, (request, response) => {
   const { name, username } = request.body;
 
@@ -35,8 +47,10 @@ app.post('/users', checksExistsUserAccount, (request, response) => {
   return response.status(201).json(newUser);
 });
 
-app.get('/todos', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+app.get('/todos', findUser, (request, response) => {
+  const { user } = request;
+
+  return response.status(200).json(user.todos);
 });
 
 app.post('/todos', checksExistsUserAccount, (request, response) => {
