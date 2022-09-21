@@ -32,6 +32,14 @@ function findUser(request, response, next) {
   next();
 }
 
+function verifyPostTodo(request, response, next) {
+  const { title, deadline } = request.body;
+
+  if (!title || !deadline) return response.status(400).json({ error: 'Fields title/deadline requisred!' });
+
+  next();
+}
+
 app.post('/users', checksExistsUserAccount, (request, response) => {
   const { name, username } = request.body;
 
@@ -53,8 +61,22 @@ app.get('/todos', findUser, (request, response) => {
   return response.status(200).json(user.todos);
 });
 
-app.post('/todos', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+app.post('/todos', findUser, verifyPostTodo, (request, response) => {
+  const { title, deadline } = request.body;
+  const { user } = request;
+  console.log(user);
+
+  const newTask = {
+    id: uuidv4(),
+    title,
+    deadline,
+    created_at: new Date(),
+  }
+
+  user.todos.push(newTask);
+
+  return response.status(201).json(newTask);
+
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
