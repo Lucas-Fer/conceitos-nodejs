@@ -101,8 +101,12 @@ app.put('/todos/:id', findUser, verifyPostTodo, verifyUuidTodo, (request, respon
   return response.status(200).json(task);
 });
 
-app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+app.patch('/todos/:id/done', findUser, verifyUuidTodo, (request, response) => {
+  const { task } = request;
+
+  task.done = true;
+
+  return response.status(200).json(task);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
