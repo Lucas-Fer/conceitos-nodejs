@@ -64,19 +64,18 @@ app.get('/todos', findUser, (request, response) => {
 app.post('/todos', findUser, verifyPostTodo, (request, response) => {
   const { title, deadline } = request.body;
   const { user } = request;
-  console.log(user);
 
   const newTask = {
     id: uuidv4(),
     title,
     deadline,
+    done: false,
     created_at: new Date(),
   }
 
   user.todos.push(newTask);
 
   return response.status(201).json(newTask);
-
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
