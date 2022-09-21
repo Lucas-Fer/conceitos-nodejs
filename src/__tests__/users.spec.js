@@ -38,6 +38,7 @@ describe('Users', () => {
       })
       .expect(400);
 
+    console.log(response);
     expect(response.body.error).toBeTruthy();
   });
 });
