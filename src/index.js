@@ -24,6 +24,7 @@ function findUser(request, response, next) {
   const { username } = request.headers;
 
   if (!username) return response.status(404).send({ error: 'Header required!' });
+
   const findUser = users.find(user => user.username === username);
 
   if (!findUser) return response.status(400).json({ error: 'Username not found' });
@@ -37,6 +38,18 @@ function verifyPostTodo(request, response, next) {
 
   if (!title || !deadline) return response.status(400).json({ error: 'Fields title/deadline requisred!' });
 
+  next();
+}
+
+function verifyUuidTodo(request, response, next) {
+  const { id } = request.params;
+  const { user } = request;
+
+  const findTask = user.todos.find((task) => task.id === id);
+
+  if (!findTask) return response.status(404).json({ error: 'Task not found!' });
+
+  request.task = findTask;
   next();
 }
 
@@ -78,8 +91,14 @@ app.post('/todos', findUser, verifyPostTodo, (request, response) => {
   return response.status(201).json(newTask);
 });
 
-app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+app.put('/todos/:id', findUser, verifyPostTodo, verifyUuidTodo, (request, response) => {
+  const { title, deadline } = request.body;
+  const { task } = request;
+
+  task.title = title;
+  task.deadline = deadline;
+
+  return response.status(200).json(task);
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
